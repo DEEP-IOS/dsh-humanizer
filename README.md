@@ -1,6 +1,6 @@
 # dsh-humanizer
 
-[![CI](https://github.com/deepios/dsh-humanizer/actions/workflows/ci.yml/badge.svg)](https://github.com/deepios/dsh-humanizer/actions)
+[![CI](https://github.com/DEEP-IOS/dsh-humanizer/actions/workflows/ci.yml/badge.svg)](https://github.com/DEEP-IOS/dsh-humanizer/actions)
 [![npm](https://img.shields.io/npm/v/dsh-humanizer?label=npm)](https://www.npmjs.com/package/dsh-humanizer)
 
 中文文本的深度编辑工作流，跑在 DeepSeek Harness 上。
@@ -135,4 +135,5 @@ pnpm test
 ## License
 
 MIT
+
 

@@ -54,7 +54,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deepios/dsh-humanizer.git"
+    "url": "git+https://github.com/DEEP-IOS/dsh-humanizer.git"
   },
   "keywords": [
     "dsh",
@@ -67,6 +67,7 @@
   ],
   "license": "MIT"
 }
+
 
 
 
