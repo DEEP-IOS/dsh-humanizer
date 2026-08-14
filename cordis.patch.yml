@@ -1,0 +1,5 @@
+# dsh-humanizer bundle 的组合层：向 web profile 挂载本插件的 Node half。
+# 插件本体（index.mjs）是完整 Cordis 插件；这里只声明 insert 行。
+- insert:
+    - id: dsh-humanizer
+      name: '@dsh-external/dsh-humanizer'
