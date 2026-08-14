@@ -112,3 +112,15 @@ test('validateArtifact: 完整工件通过', () => {
   assert.equal(r.unverifiedEvidence.length, 0)
 })
 
+
+
+test('profile: 逐段画像（segments + §18 特征字计数）', () => {
+  const text = '他推开门。风卷着雪灌进来。\n\n他说，好像心里有点慌，忽然之间，仿佛什么都不记得了。'
+  const r = profile(text)
+  assert.equal(r.segments.length, 2)
+  assert.equal(r.segments[0].features['像'], 0)
+  assert.equal(r.segments[1].features['像'], 1)
+  assert.equal(r.segments[1].features['忽然'], 1)
+  assert.equal(r.segments[1].features['心里'], 1)
+  assert.equal(r.segments[1].features['仿佛'], 1)
+})

@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0-rc.3]
+
+### 变更
+- `humanize_profile` 增加逐段分布画像（segments + §18 特征字计数，只画像不判定）
+- `humanize_reference` 支持读小节（如 `04#4.7`、`04 特殊句式`）
+- 引导文本微强化：十步补"逐维审计/不压缩层级/按 §11 逐格填写"
+- README 彻底重写：讲透理论、有立场、无 AI 腔、无破折号
+- 测试 22 → 26 用例
+
 ## [0.1.0-rc.2]
 
 ### 变更
@@ -30,5 +39,6 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 

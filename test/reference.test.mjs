@@ -37,3 +37,22 @@ test('readReference: 未找到返回错误与清单', () => {
   assert.ok(r.error, '应返回 error')
   assert.ok(Array.isArray(r.available))
 })
+
+
+test('readReference: 小节读取（章节号#节号）', () => {
+  const x = readReference('04#4.7')
+  assert.ok(x.section.includes('4.7'))
+  assert.ok(x.text.length > 100)
+})
+
+test('readReference: 小节关键词读取', () => {
+  const x = readReference('04 特殊句式')
+  assert.ok(x.section.includes('特殊句式'))
+  assert.ok(x.text.length > 100)
+})
+
+test('readReference: 小节未找到返回错误与清单', () => {
+  const x = readReference('04#不存在的节xyz')
+  assert.ok(x.error)
+  assert.ok(Array.isArray(x.available))
+})

@@ -1,6 +1,6 @@
 {
   "name": "dsh-humanizer",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0-rc.3",
   "description": "中文文本人味化 bundle 插件：强制深层改写工作流（十维叙事审计 + 功能路径 + 15 层分布）+ 内容忠实守卫。编辑辅助，非 AI 检测器。",
   "type": "module",
   "main": "./index.mjs",
@@ -67,6 +67,7 @@
   ],
   "license": "MIT"
 }
+
 
 
 
