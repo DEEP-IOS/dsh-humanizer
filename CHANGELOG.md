@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-rc.4]
+
+### 变更
+- README 语言重写：开头改为具体场景，删除空洞形容词与翻译腔
+
 ## [0.1.0-rc.3]
 
 ### 变更
@@ -39,6 +44,7 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 
 
