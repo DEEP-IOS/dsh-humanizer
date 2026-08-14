@@ -1,5 +1,5 @@
 {
-  "name": "@dsh-external/dsh-humanizer",
+  "name": "dsh-humanizer",
   "version": "0.1.0-rc.1",
   "description": "中文文本人味化 bundle 插件：强制深层改写工作流（十维叙事审计 + 功能路径 + 15 层分布）+ 内容忠实守卫。编辑辅助，非 AI 检测器。",
   "type": "module",
@@ -54,12 +54,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dsh-external/dsh-humanizer.git"
+    "url": "git+https://github.com/deepios/dsh-humanizer.git"
   },
   "keywords": [
     "dsh",
     "dsh-plugin",
-    "dsh-external",
+
     "humanizer",
     "chinese-writing",
     "novel",
@@ -67,6 +67,7 @@
   ],
   "license": "MIT"
 }
+
 
 
 

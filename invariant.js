@@ -1,4 +1,4 @@
-// @dsh-external/dsh-humanizer — ./invariant 配套入口
+// dsh-humanizer — ./invariant 配套入口
 //
 // 官方惯例（@deepseek-ai/dsh-invariants）：每个发布包提供 ./invariant 入口，
 // 用于注册包自有的运行时关系断言；无跨记录关系的包提供空 installer。
@@ -9,3 +9,5 @@
 // 不变量。故按官方惯例提供空配套入口（与 @deepseek-ai/dsh-tools 的
 // invariant.js 同为 0 字节占位等价物）。
 export {}
+
+

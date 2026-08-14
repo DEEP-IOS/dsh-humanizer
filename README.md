@@ -1,6 +1,6 @@
 # dsh-humanizer
-[![CI](https://github.com/dsh-external/dsh-humanizer/actions/workflows/ci.yml/badge.svg)](https://github.com/dsh-external/dsh-humanizer/actions)
-[![npm](https://img.shields.io/npm/v/@dsh-external/dsh-humanizer?label=npm)](https://www.npmjs.com/package/@dsh-external/dsh-humanizer)
+[![CI](https://github.com/deepios/dsh-humanizer/actions/workflows/ci.yml/badge.svg)](https://github.com/deepios/dsh-humanizer/actions)
+[![npm](https://img.shields.io/npm/v/dsh-humanizer?label=npm)](https://www.npmjs.com/package/dsh-humanizer)
 
 > 中文文本人味化 —— DeepSeek Harness（DSH）bundle 插件。
 
@@ -37,13 +37,13 @@
 
 ```sh
 # registry（发布后，推荐）
-dsh plugin --profile web add @dsh-external/dsh-humanizer
+dsh plugin --profile web add dsh-humanizer
 
 # 本地开发（在包目录内执行，生成 link: 依赖）
 dsh plugin --profile web add .
 
 # git 源
-dsh plugin --profile web add "github:dsh-external/dsh-humanizer#<ref>"
+dsh plugin --profile web add "github:deepios/dsh-humanizer#<ref>"
 ```
 
 装完**重启 web**（bundle 层栈在 boot 合成；Node half 改动需重启，ESM 缓存）。
@@ -61,7 +61,7 @@ node scripts/guard-humanizer.mjs guard ./原文.md ./改写稿.md
 
 ## 命名说明
 
-与 [dsh-external/dsh-humanize](https://github.com/dsh-external/dsh-humanize) **不是同一个项目**：那个是 RLCR 编码工作流。本插件做的是**文本**人味化。
+与 dsh-humanize **不是同一个项目**：那个是 RLCR 编码工作流。本插件做的是**文本**人味化。
 
 ## 状态
 
@@ -70,7 +70,9 @@ node scripts/guard-humanizer.mjs guard ./原文.md ./改写稿.md
 - [x] 三个确定性工具（画像 / 内容守卫 / 工件校验）
 - [x] Client half（设置页工作台面板）
 - [x] 安装验证（本地 profile 挂载冒烟通过：`npx @deepseek-ai/dsh web` 正常启动）
-- [ ] 发布（npm next tag 首版 + 从 registry 重装验证）
+- [x] 发布（npm 已发布 0.1.0-rc.1，tag next/latest）
+
+
 
 
 

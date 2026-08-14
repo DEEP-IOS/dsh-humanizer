@@ -77,5 +77,6 @@ dsh-humanizer/
 ## 6. 已知差距与待办（诚实清单）
 
 1. **client 工作台面板渲染未验证**：boot 冒烟通过 ≠ 设置页面板真实渲染；机制已对齐官方（__ModuleLoader__ + slots），需在真实 web UI 确认。
-2. **dsh-external org 权限**：发布目标仓库 `dsh-external/dsh-humanizer` 需 org 成员 push 权限。
+2. **GitHub 仓库**：发布目标 deepios/dsh-humanizer（自有账号，打 dsh-plugin topic）。
 3. **方法论专名（已处理）**：references/ 为自有研究材料，分发版本已移除内部专名与检测器名，仅保留原理与适用范围（§10/§14 的"不点名检测器"原则）。
+

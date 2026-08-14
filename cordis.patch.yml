@@ -2,4 +2,6 @@
 # 插件本体（index.mjs）是完整 Cordis 插件；这里只声明 insert 行。
 - insert:
     - id: dsh-humanizer
-      name: '@dsh-external/dsh-humanizer'
+      name: 'dsh-humanizer'
+
+
