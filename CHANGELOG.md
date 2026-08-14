@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-rc.6]
+
+### 变更
+- 重写 §13 禁止与回退：十二类禁止逐条展开（禁止什么/为什么/看似合理的情形/识别与回退），补回退触发条件、操作规程、边界与关联表
+
 ## [0.1.0-rc.5]
 
 ### 变更
@@ -49,6 +54,7 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 
 
