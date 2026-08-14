@@ -88,8 +88,14 @@
 
 ## 安装
 
+一行命令，两种途径任选：
+
 ```sh
+# npm 源（推荐）
 dsh plugin --profile web add dsh-humanizer
+
+# Git 源（从 GitHub 拉取，始终最新）
+dsh plugin --profile web add "github:DEEP-IOS/dsh-humanizer"
 ```
 
 装完重启 web。bundle 层栈在 boot 时合成，Node half 改动需要重启才生效。
@@ -131,3 +137,4 @@ pnpm test
 ## License
 
 MIT
+
