@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-rc.8]
+
+### 新增
+- docs/WHY.md：体系论证文档（与同类产品区别 + 每一条论断的研究/实战依据 + 理论依据清单）
+- README 方法论节加入口链接
+
 ## [0.1.0-rc.7]
 
 ### 变更
@@ -59,6 +65,7 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 
 
