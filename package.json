@@ -46,6 +46,7 @@
     "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
     "@deepseek-ai/cordis": "^4.0.1"
   },
+  "packageManager": "pnpm@10.30.3",
   "engines": {
     "node": ">=18"
   },
@@ -67,6 +68,7 @@
   ],
   "license": "MIT"
 }
+
 
 
 
