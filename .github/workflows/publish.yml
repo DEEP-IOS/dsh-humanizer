@@ -1,0 +1,25 @@
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: corepack enable
+      - run: pnpm install --ignore-scripts
+      - run: pnpm test
+      - name: Publish to npm
+        run: |
+          TAG="latest"
+          if [[ "${{ github.ref_name }}" == *"-rc"* ]]; then TAG="next"; fi
+          pnpm publish --tag "$TAG" --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

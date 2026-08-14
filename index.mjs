@@ -11,11 +11,12 @@
 // 配置（Config，profile patch 可选覆盖；全部带默认值）：
 //   workflowEnabled: 是否注入常驻工作流引导（默认 true）
 //   toolsEnabled:    是否注册三个确定性工具（默认 true）
-//   sectionOrder:    system prompt 工作流段的 order（默认 500，注意力高位）
+//   sectionOrder:    system prompt 工作流段的 order（默认 50；官方升序拼接：-100 身份/0 persona/100-199 工具引导；越靠前注意力越高）
 
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import z from '@deepseek-ai/schemastery'
 import { profile, guard, validateArtifact } from './lib/guard.mjs'
+import { readReference } from './lib/reference.mjs'
 
 export const name = 'dsh-humanizer'
 export const inject = ['tools', 'systemPrompt']
@@ -23,7 +24,7 @@ export const inject = ['tools', 'systemPrompt']
 export const Config = z.object({
   workflowEnabled: z.boolean().default(true),
   toolsEnabled: z.boolean().default(true),
-  sectionOrder: z.number().default(500),
+  sectionOrder: z.number().default(50),
 })
 
 // 常驻 system prompt 的工作流引导（精简版；完整版在 references/00-工作流.md）
@@ -44,9 +45,10 @@ const 工作流引导 = `# 中文文本人味化工作流（dsh-humanizer）
 - humanize_profile(text)：分布画像（句长/短句长句占比/连词密度/内容锚点）。
 - humanize_guard(original, rewritten)：内容忠实守卫（锚点比对+禁止条件+破折号/半角引号/我是X的/仿佛似乎/不是…而是）。
 - humanize_validate_artifact(artifact, source)：工件校验（拒占位空话/空数组/不实证据/过短判断/英文token）。
+- humanize_reference(name)：读取插件 references/ 章节全文（00—18 或关键词）。
 
 ## 详细方法
-十维细分项、十五层细分项、七类高危模式、复核清单等，在插件 references/ 目录（00-工作流.md 与 01—18 章），需要时用 read 工具读取对应文件。`
+十维细分项、十五层细分项、七类高危模式、复核清单等，需要时用 humanize_reference 工具读取对应章节（传章节号 00—18 或文件名关键词）。`
 
 // 返回对象的工具统一用 JSON 输出 + 文本渲染。
 const jsonOutput = {
@@ -108,4 +110,22 @@ export function apply(ctx, config) {
     output: jsonOutput,
     execute: async (args) => validateArtifact(args.artifact, String(args.source ?? '')),
   }))
+
+  ctx.tools.register(defineTool({
+    name: 'humanize_reference',
+    description:
+      '读取插件自带的方法论文档（references/ 目录：00-工作流.md 与 01—18 章）。' +
+      '工作流需要章节细则时调用：传章节号（如 05、00）或文件名关键词（如 十维）。' +
+      '这是方法论的唯一可达通道——插件包内文件无法用工作区 read 工具读取。',
+    parameters: {
+      name: { type: 'string', required: true, description: '章节标识：章节号（00—18）或文件名关键词' },
+    },
+    output: jsonOutput,
+    execute: async (args) => readReference(String(args.name ?? '')),
+  }))
 }
+
+
+
+
+

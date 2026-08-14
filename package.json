@@ -18,6 +18,8 @@
     "lib/",
     "scripts/",
     "references/",
+    "docs/",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],
@@ -33,7 +35,8 @@
     }
   },
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "pnpm test",
     "guard": "node scripts/guard-humanizer.mjs"
   },
   "dependencies": {
@@ -64,3 +67,8 @@
   ],
   "license": "MIT"
 }
+
+
+
+
+
