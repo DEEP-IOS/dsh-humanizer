@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-rc.2]
+
+### 变更
+- 引导文本内联 §00 工作流全文 + §12 执行提示全文，理论真正常驻 system prompt（不再靠模型主动读才可见）
+- README 补全理论介绍、十步工作流表与 19 章 reference 目录
+- 包名改为 dsh-humanizer（无 scope，脱离非官方 @dsh-external）
+
 本项目遵循语义化版本；`next` tag 承载 rc 线，稳定后转 `latest`。
 
 ## [0.1.0-rc.1] — 待发布
@@ -23,4 +30,5 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
