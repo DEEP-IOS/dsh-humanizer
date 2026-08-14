@@ -86,6 +86,19 @@ test('validateArtifact: 证据不在原文判失败', () => {
   assert.ok(r.unverifiedEvidence.length > 0)
 })
 
+test('validateArtifact: 英文术语 AI/AIGC 不告警，普通英文告警', () => {
+  const legal = validateArtifact({ 判断: '此处用了 AI 与 AIGC 两个术语' }, '')
+  assert.equal(legal.ok, true)
+  assert.equal(legal.englishTokens.length, 0)
+  const illegal = validateArtifact({ 判断: '此处用了 English token 混入' }, '')
+  assert.ok(illegal.englishTokens.length > 0)
+})
+
+test('guard: 心理套路扩展（我先前/本来/当时＋以为/想着）', () => {
+  const r = guard('原文。', '我先前还想着，这事就算过去了。我本来以为他会回来。')
+  assert.ok(r.forbidden.some((f) => f.type === 'psych-proxy'))
+})
+
 test('validateArtifact: 完整工件通过', () => {
   const source = '他推开门，风卷着雪灌进来。桌上的灯晃了一下。'
   const artifact = {
@@ -98,3 +111,4 @@ test('validateArtifact: 完整工件通过', () => {
   assert.equal(r.emptyOrPlaceholder.length, 0)
   assert.equal(r.unverifiedEvidence.length, 0)
 })
+
