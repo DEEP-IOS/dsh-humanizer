@@ -1,99 +1,81 @@
 # dsh-humanizer 体系理解文档（ARCHITECTURE）
 
-> 本文档完整描述插件的定位、组成、运作机制与已知差距，是仓库的架构基线。
+> 本文档描述插件的定位、组成、运作机制与设计哲学。
 > 最后更新：0.1.0-rc.1
 
-## 1. 定位与核心理念
+## 1. 本质与核心理念
 
-**一句话**：把 dsh 变成中文文本的深度编辑工作台——用「模型做人味，程序守内容」的分工，强制一套反套路化的深层改写工作流。
+**体系的靶心一句话**：消除文本决策结构里残留的模型默认概率路径——反套路化、反同质化、反模板化。
 
-核心理念（与实现的对应）：
+AI 痕迹的主体不是某些词，而是"把任何结构做成默认"：同一套推理路径、同一套段落开合、同一套情绪载体、同一套章节配方反复出现。所以表层换词无效，深层要改的是**材料选择、论证关系、叙事设计、信息组织**。
 
-| 理念 | 实现 |
-|---|---|
-| 不是"换词"，不是"正则去 AI 味" | 确定性层只做画像/守卫/校验，不做"命中即修"；禁止条件只作核验信号 |
-| 反套路化/反同质化/反模板化 | 十维叙事设计 + 功能路径轮换，由常驻 system prompt 强制 |
-| 一次一步（十步状态机） | 常驻引导定义十步；每步工件必须过 `humanize_validate_artifact` 门禁 |
-| 模型做人味，程序守内容 | 改写全权交给模型；程序只守锚点忠实、禁止条件、工件质量 |
-| 编辑辅助，非 AI 检测器 | 不输出概率、不识别作者、不要求提交外部检测 |
+五个不能互相替代的目标（§01）：
+1. 人类作者感（有具体的观察者/判断者/叙述者，而非无位置的说明装置）
+2. 语言分布异质性（变化都有语义和语用理由）
+3. 内容忠实性（事实/观点/人物/因果/术语不得受损）
+4. 自动审核通过性（从原理层对抗检测器，不要求外部检测）
+5. 人工审核通过性（读者和编辑不能形成稳定怀疑）
 
-## 2. 文件结构与职责
+**贯穿全体系的灵魂（§18）：「配额＝新指纹」**——把任何手法做成固定配方（每章一处重释、每章一个钩子），词句层再达标也失败。**因此本插件自身也不得沦为固定配方。**
+
+## 2. 分工哲学：模型做人味，程序守内容
+
+这是理解整个体系正确与否的关键：
+
+| | 模型（95%+ 的工作） | 程序（极少的确定性守卫） |
+|---|---|---|
+| 做什么 | 十维叙事审计、十五层语言分析、功能路径诊断、复杂度门控、八类路径追踪、十六类问题对照、七类高危模式、三轮改写、三重审核、最小差异对照、留出测试 | 内容锚点保真、禁止条件扫描、工件质量门禁、分布画像 |
+| 性质 | 语境依赖的认知判断（"这个排比有没有功能"） | 与语境无关的确定性校验（"数字丢了没有""破折号出现了没有"） |
+| 为什么 | 只有模型能判断"重复是否有功能""复杂度是否来自真实需求" | 程序只做正则/比对真正擅长、且不会机械化的那一小部分 |
+
+**程序层必须极简，这是设计哲学而非能力限制**：体系的敌人是"套路化"，而程序规则本质是固定规则——规则越多越僵化，程序层自己就会变成"新指纹"。把深层判断硬塞给正则，产出的是机械替换，正好是 §14 反复论证的反效果。
+
+## 3. 「十步」的正确含义：工作纪律，不是程序状态机
+
+十步（0 接单卡 → 1 十维设计 → 2 功能路径 → 3 十五层分析 → 4 认识来源 → 5 问题清单 → 6/7/8 三轮改写 → 9 复核 → 10 交付）是**给模型的工作纪律**，用来防止"一次全部做完 = 打卡式偷工减料"。
+
+它的约束力来自两处：
+1. **常驻 system prompt 的铁律文本**（order 50 高位）：禁止略读/概括/打卡式/是-否判断/整体化判断/配额化/英文思考/一次做完；
+2. **`humanize_validate_artifact` 工件门禁**：每步产出的工件必须真填满（拒占位空话/空数组/假证据/过短判断）。
+
+**程序绝不维护"当前第几步、非序调用即拒"之类的状态跟踪**。顺序和节奏是模型的执行纪律，由 prompt 与工件质量门禁间接保证；程序一旦去"强制步骤"，就把工作流变成了固定配方，违背「配额＝新指纹」。这是本插件的设计本意，不是缺陷。
+
+## 4. 文件结构与职责
 
 ```
 dsh-humanizer/
-├── package.json            # npm 包 manifest + dsh bundle/client 声明（官方字段）
-├── index.mjs               # Node half：Cordis 插件本体（Config/apply/三个工具 + 工作流引导）
-├── invariant.js            # ./invariant 配套入口（官方惯例：空 installer）
-├── cordis.patch.yml        # bundle patch：向 profile 配置树插入本插件一行
-├── lib/
-│   ├── guard.mjs           # 确定性层（零依赖）：profile/guard/validateArtifact
-│   └── reference.mjs       # references/ 目录读取器（humanize_reference 工具后端）
-├── lib/client.js           # 浏览器 half：设置页「人味化」工作台面板（官方 __ModuleLoader__ + slots）
-├── references/             # 方法论全文（00-工作流 + 01—18 章），随包分发的数据资产
-├── scripts/guard-humanizer.mjs  # CLI：profile / guard 冒烟
-├── test/guard.test.mjs     # node:test 测试（14 用例）
+├── package.json            # npm 包 manifest + dsh bundle/client 声明
+├── index.mjs               # Node half：Config/apply/常驻引导 + 4 个工具
+├── invariant.js            # ./invariant 配套入口（官方惯例）
+├── cordis.patch.yml        # bundle patch：插入一行
+├── lib/guard.mjs           # 确定性层（零依赖）：profile/guard/validateArtifact
+├── lib/reference.mjs       # references/ 读取器（humanize_reference 后端）
+├── lib/client.js           # 浏览器 half：设置页静态引导面板
+├── references/             # 方法论全文（00 工作流 + 01—18 章），执行的知识库
+├── scripts/guard-humanizer.mjs  # CLI 冒烟
+├── test/                   # node:test（20 用例）
 └── docs/ARCHITECTURE.md    # 本文档
 ```
 
-## 3. 加载与组合机制（dsh 视角）
+## 5. 运行时会话链路
 
 ```
-dsh web
-  → 读 ~/.dsh/profiles/web/package.json 的 dsh.profile.bundles
-  → 按序应用每个 bundle 的 cordis.patch.yml（dsh-humanizer 在 base/web-app 之后）
-  → patch 插入一行：{ id: dsh-humanizer, name: '@dsh-external/dsh-humanizer' }
-  → cordis loader import 包主入口（index.mjs）→ 插件协议 { name, inject, Config, apply }
-  → client 侧：dsh-client-modules 扫描声明 dsh.client 的包
-    → 解析 exports["./client"]（lib/client.js）
-    → Node half 把它写入 window.__DSH_BOOT__，serve /plugins/<id>/client.js
-    → 浏览器端 __ModuleLoader__.load() 注册 factory → 物化后作为插件 entry 采用
+用户触发 → 常驻引导（order 50）立起纪律与铁律
+  → 模型按十步逐步产出工件，每步过 humanize_validate_artifact 门禁（质量，非顺序）
+  → 需要细则时 humanize_reference("05") 取章节全文
+  → 诊断/改写全过程由模型按 references 方法论执行
+  → 第 9 步 humanize_guard 复核（锚点忠实 + 禁止条件）
+  → 第 10 步交付
 ```
 
-- **bundle 识别**：manifest 的 `dsh.bundle.patch` 非空即成为 profile 层（`dsh plugin` reconcile 自动维护 bundles 列表）
-- **client 识别**：manifest 的 `dsh.client.platform`（官方字段，含 `inject`/`immediately` 可选）
-- **依赖解析**：`@deepseek-ai/dsh-tools`/`cordis` 是 peer，由 dsh 闭包满足；schemastery 是普通依赖
+四个工具分工：
+- `humanize_profile(text)`：分布画像（句长/短长句占比/连词密度/内容锚点）——只提供信息，不做"去修"判定
+- `humanize_guard(original, rewritten)`：锚点保真 + 禁止条件扫描（§18 脚本核验清单）——复核阶段
+- `humanize_validate_artifact(artifact, source)`：工件质量门禁（拒占位/空值/假证据/短判断；英文 token 仅告警）
+- `humanize_reference(name)`：按需读取 references/ 章节全文
 
-## 4. 运行时行为（一次完整人味化会话）
+## 6. 已知差距与待办（诚实清单）
 
-```
-用户：用 humanizer 处理这段文本
-  │
-  ├─ 常驻引导（systemPrompt.section，order 50）告知：核心理念/十步/铁律/工具
-  ├─ 模型进入第 0 步接单卡
-  ├─ 第 1 步 十维叙事设计 → 产出工件A
-  │     └─ humanize_validate_artifact(工件A, 原文)   ← 程序门禁：不过则打回
-  ├─ 第 2 步 功能路径图 → 工件B → 门禁
-  ├─ …（每步：工件 → 门禁 → 进下一步）
-  ├─ 需要细则时 → humanize_reference("05")  ← 程序从插件包内读 references/ 返回全文
-  ├─ 第 6-8 步 三轮改写（材料/叙事/论证 → 信息/句法 → 词汇）
-  ├─ 第 9 步 复核 → humanize_guard(原文, 改写稿)  ← 锚点忠实 + 禁止条件
-  └─ 第 10 步 交付
-```
-
-**工具分工**：
-- `humanize_profile(text)`：分布画像（句长/段落/短长句占比/连词密度）+ 内容锚点。诊断信息，非"去修"指令
-- `humanize_guard(original, rewritten)`：锚点保真比对 + §18 禁止条件扫描（破折号/半角引号/我是X的/仿佛似乎/不是…而是/引号成对等）。复核阶段
-- `humanize_validate_artifact(artifact, source)`：工件质量门禁（拒占位空话/空数组/不实证据/过短判断；英文 token 仅告警）
-- `humanize_reference(name)`：按需读取 references/ 章节全文（打通方法论的可达性）
-
-## 5. 与官方规范的对应
-
-| 官方规范 | 本插件 |
-|---|---|
-| bundle 包：`dsh.bundle.patch` + `cordis.patch.yml` | ✅ |
-| client 包：`dsh.client.platform` + `exports["./client"]` | ✅ |
-| 插件协议：`name`/`inject`/`Config`/`apply(ctx, config)` | ✅（Config 全带默认值） |
-| 工具注册：`ctx.tools.register(defineTool(...))` | ✅（output 必填 + render + JSON 输出） |
-| 生命周期：`ctx.effect` 返回 disposer | ✅（引导段 + 工具注册随 fiber dispose） |
-| 版本韧性：`./invariant` 配套入口 | ✅（空 installer 惯例） |
-| 发布：`files` 白名单 + `publishConfig.access: public` + rc 版本 | ✅ |
-| 测试：`node --test` | ✅（14 用例） |
-
-## 6. 已知差距与决策点（诚实清单）
-
-1. **references/ 可达性（已修复）**：早期 system prompt 引导模型"用 read 工具读取 references/"——但 read 读的是工作区，模型无法定位插件包内路径。v0.1.0-rc.1 起由 `humanize_reference` 工具打通。
-2. **order 语义（已修复）**：原 `order: 500` 在官方升序拼接语义下是提示词末尾而非"注意力最高处"；默认改为 50（persona 之后、工具引导 100–199 之前）。如部署中其他插件占用 1–49，profile 可用 Config 覆盖。
-3. **十步状态机无程序级顺序强制（待决策）**：`humanize_validate_artifact` 是每步门禁，但"必须按 0→10 顺序、不得跳步"目前靠常驻引导的文本约束。若要程序级强制（记录当前步骤、非序调用即拒），需引入 sessionProjections（官方机制，todo 插件范式）——会增加复杂度，是否值得由产品决策。
-4. **client 工作台面板渲染未验证（待验证）**：boot 冒烟通过 ≠ 设置页面板真实渲染。机制已对齐官方（__ModuleLoader__ + slots.inject('settings.section')），但需在真实 web UI 打开「设置 → 人味化」确认。
-5. **方法论版权（待确认）**：references/ 源自《中文文本人工智能痕迹消除与多重审核对抗完整方法体系》与《青囊雪》迭代经验。以 MIT 开源分发前需确认授权链完整。
-6. **dsh-external org 权限（待确认）**：发布目标仓库 `dsh-external/dsh-humanizer` 需 org 成员 push 权限。
+1. **client 工作台面板渲染未验证**：boot 冒烟通过 ≠ 设置页面板真实渲染；机制已对齐官方（__ModuleLoader__ + slots），需在真实 web UI 确认。
+2. **dsh-external org 权限**：发布目标仓库 `dsh-external/dsh-humanizer` 需 org 成员 push 权限。
+3. **方法论专名（已处理）**：references/ 为自有研究材料，分发版本已移除内部专名与检测器名，仅保留原理与适用范围（§10/§14 的"不点名检测器"原则）。
