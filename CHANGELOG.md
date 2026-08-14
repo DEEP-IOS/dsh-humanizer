@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-rc.7]
+
+### 变更
+- README 增加"它改出来的东西长什么样"效果示范（人味化前后对比 + 改动决策表）
+
 ## [0.1.0-rc.6]
 
 ### 变更
@@ -54,6 +59,7 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 
 
