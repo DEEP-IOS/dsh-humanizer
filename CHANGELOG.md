@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.0-rc.5]
+
+### 变更
+- README 安装节补 Git 源一行命令（`github:DEEP-IOS/dsh-humanizer`，已实测可用）
+
 ## [0.1.0-rc.4]
 
 ### 变更
@@ -44,6 +49,7 @@
 ### 规范对齐
 - bundle/client 双面声明、`exports` 补 `./invariant`、`files` 白名单、`publishConfig.access: public`
 - 开源配套：CONTRIBUTING / SECURITY / ARCHITECTURE / CHANGELOG
+
 
 
 
