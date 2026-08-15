@@ -1,41 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { profile, guard, validateArtifact, GUARD_VERSION } from '../lib/guard.mjs'
+import { guard, legacyProfile, validateArtifact, validateDecision, GUARD_VERSION } from '../lib/guard.mjs'
 
 test('GUARD_VERSION 为 semver', () => {
   assert.match(GUARD_VERSION, /^\d+\.\d+\.\d+$/)
-})
-
-test('profile: 空文本返回零值指标与空锚点', () => {
-  const r = profile('')
-  assert.equal(r.metrics.chars, 0)
-  assert.equal(r.metrics.sentences, 0)
-  assert.deepEqual(r.anchors, [])
-})
-
-test('profile: 基本指标（段落/句子/占比）', () => {
-  const text = '这是第一句话。这是第二句话，稍微长一点点。\n\n第二段只有一句。'
-  const r = profile(text)
-  assert.ok(r.metrics.chars > 0)
-  assert.equal(r.metrics.paragraphs, 2)
-  assert.equal(r.metrics.sentences, 3)
-  assert.ok(r.metrics.shortSentenceRatio >= 0)
-  assert.ok(r.metrics.longSentenceRatio >= 0)
-})
-
-test('profile: 内容锚点提取（数字/等级/拉丁/书名号）', () => {
-  const text = '第三章出现 1234 元，规格 A级，接口 JSON，参考《人味化手册》。'
-  const r = profile(text)
-  const values = r.anchors.map((a) => a.value)
-  assert.ok(values.includes('1234'), `anchors 应含 1234，实际 ${JSON.stringify(values)}`)
-  assert.ok(values.some((v) => v.includes('A级')), 'anchors 应含 A级')
-  assert.ok(values.includes('JSON'), 'anchors 应含 JSON')
-  assert.ok(values.some((v) => v.includes('《人味化手册》')), 'anchors 应含书名号术语')
-})
-
-test('profile: 连词密度计数', () => {
-  const r = profile('首先……其次……最后……')
-  assert.ok(r.metrics.connectorDensityPer1k > 0)
 })
 
 test('guard: 锚点全部保留', () => {
@@ -50,77 +18,62 @@ test('guard: 锚点丢失被报告', () => {
   assert.equal(r.fidelity.missing.length + r.fidelity.preserved, r.fidelity.totalAnchors)
 })
 
-test('guard: 禁止条件（破折号/半角引号/连续重复标点）', () => {
-  const r = guard('原文。', '他——愣住了！！！说"好吧"。')
-  const types = r.forbidden.map((f) => f.type)
-  assert.ok(types.includes('em-dash'), '应命中破折号')
-  assert.ok(types.includes('halfwidth-quote'), '应命中半角引号')
-  assert.ok(types.includes('repeated-punctuation'), '应命中连续重复标点')
-})
-
 test('guard: 引号不成对', () => {
   const r = guard('原文。', '他说“你好。')
-  assert.ok(r.forbidden.some((f) => f.type === 'unpaired-quote'))
+  assert.ok(r.integrity.some((f) => f.type === 'unpaired-quote'))
 })
 
-test('validateArtifact: 占位空话判失败', () => {
+test('guard: 乱码控制字符被报告', () => {
+  const r = guard('原文。', '他说�好的。')
+  assert.ok(r.integrity.some((f) => f.type === 'replacement-or-control-char'))
+})
+
+test('guard: 不扫描文体信号（破折号/半角引号/仿佛/心理代理不报）', () => {
+  const r = guard('原文。', '他——愣住了说"好吧"，仿佛明白了什么。我这才明白，不是失败而是教训。')
+  const types = r.integrity.map((f) => f.type)
+  assert.ok(!types.includes('em-dash'), '破折号不应是守卫对象')
+  assert.ok(!types.includes('halfwidth-quote'), '半角引号不应是守卫对象')
+  assert.ok(!types.includes('vague-simile'), '仿佛/似乎不应是守卫对象')
+  assert.ok(!types.includes('psych-proxy'), '心理代理不应是守卫对象')
+  assert.ok(!types.includes('negation-reversal'), '不是…而是不应是守卫对象')
+})
+
+test('guard: 段落数变化是信息不是失败', () => {
+  const r = guard('第一段。\n\n第二段。', '第一段。')
+  assert.equal(r.paragraphs.originalCount, 2)
+  assert.equal(r.paragraphs.rewrittenCount, 1)
+  assert.equal(r.paragraphs.delta, -1)
+})
+
+test('legacyProfile: 已退役，只回锚点不回分布', () => {
+  const r = legacyProfile('第三章出现 1234 元，规格 A级，接口 JSON，参考《人味化手册》。')
+  assert.equal(r.deprecated, true)
+  const values = r.anchors.map((a) => a.value)
+  assert.ok(values.includes('1234'), '锚点应含 1234')
+  assert.ok(values.some((v) => v.includes('A级')), '锚点应含 A级')
+  assert.ok(values.includes('JSON'), '锚点应含 JSON')
+  assert.ok(values.some((v) => v.includes('《人味化手册》')), '锚点应含书名号术语')
+  assert.equal(r.metrics, undefined, '不得返回分布指标')
+  assert.equal(r.segments, undefined, '不得返回逐段特征计数')
+})
+
+// 以下两个函数 v0.3 起不再注册为工具，仅保留库级兼容。
+test('legacy validateArtifact: 占位空话判失败', () => {
   const r = validateArtifact({ 判断: '已检查' }, '原文内容')
   assert.equal(r.ok, false)
   assert.ok(r.emptyOrPlaceholder.length > 0)
 })
 
-test('validateArtifact: 空数组判失败', () => {
-  const r = validateArtifact({ items: [] }, '')
-  assert.equal(r.ok, false)
-})
-
-test('validateArtifact: 过短判断判失败', () => {
-  const r = validateArtifact({ 判断: '好' }, '')
-  assert.equal(r.ok, false)
-  assert.ok(r.shortReason.length > 0)
-})
-
-test('validateArtifact: 证据不在原文判失败', () => {
-  const r = validateArtifact({ 证据: '完全不存在的一句话' }, '原文是另一句话。')
-  assert.equal(r.ok, false)
-  assert.ok(r.unverifiedEvidence.length > 0)
-})
-
-test('validateArtifact: 英文术语 AI/AIGC 不告警，普通英文告警', () => {
-  const legal = validateArtifact({ 判断: '此处用了 AI 与 AIGC 两个术语' }, '')
-  assert.equal(legal.ok, true)
-  assert.equal(legal.englishTokens.length, 0)
-  const illegal = validateArtifact({ 判断: '此处用了 English token 混入' }, '')
-  assert.ok(illegal.englishTokens.length > 0)
-})
-
-test('guard: 心理套路扩展（我先前/本来/当时＋以为/想着）', () => {
-  const r = guard('原文。', '我先前还想着，这事就算过去了。我本来以为他会回来。')
-  assert.ok(r.forbidden.some((f) => f.type === 'psych-proxy'))
-})
-
-test('validateArtifact: 完整工件通过', () => {
-  const source = '他推开门，风卷着雪灌进来。桌上的灯晃了一下。'
-  const artifact = {
-    判断: '用动作承接场景转换，无AI味',
-    理由: '开门与风雪的物件呼应形成自然过渡，替代了心理代理句式',
-    证据: '他推开门，风卷着雪灌进来',
+test('legacy validateDecision: 四栏齐全通过，缺栏失败', () => {
+  const decision = {
+    材料来源: '账本信息来自梁问峰的旧账，阿衡只看到最后一页。',
+    注意力选择: '观察者阿衡只注意账本最后一页。',
+    判断代价: '赖账只是推测，猜错会失去铺子。',
+    保护清单: ['梁问峰', '斩杀线', '三年前'],
   }
-  const r = validateArtifact(artifact, source)
-  assert.equal(r.ok, true)
-  assert.equal(r.emptyOrPlaceholder.length, 0)
-  assert.equal(r.unverifiedEvidence.length, 0)
-})
-
-
-
-test('profile: 逐段画像（segments + §18 特征字计数）', () => {
-  const text = '他推开门。风卷着雪灌进来。\n\n他说，好像心里有点慌，忽然之间，仿佛什么都不记得了。'
-  const r = profile(text)
-  assert.equal(r.segments.length, 2)
-  assert.equal(r.segments[0].features['像'], 0)
-  assert.equal(r.segments[1].features['像'], 1)
-  assert.equal(r.segments[1].features['忽然'], 1)
-  assert.equal(r.segments[1].features['心里'], 1)
-  assert.equal(r.segments[1].features['仿佛'], 1)
+  const ok = validateDecision(decision, '')
+  assert.equal(ok.ok, true)
+  const missing = { ...decision }
+  delete missing.保护清单
+  assert.equal(validateDecision(missing, '').ok, false)
 })

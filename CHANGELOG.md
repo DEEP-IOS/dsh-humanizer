@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.3.0-rc.1]
+
+### 破坏性变更：从「执行方法」到「成为作者」
+
+- 总姿态反转：不再让模型执行规则，而是让模型在动笔前完整读入全部理论、在思考中成为作者，然后把理论忘记。中间没有工件、表格、门禁
+- 退役 v0.2 四栏决策单与 `humanize_validate_decision` / `humanize_validate_artifact` 程序化思考校验：思考完整性由完整阅读与作者姿态保证，不由程序检查
+- 新增 `humanize_study(体裁, 模式)`：一次返回 references/ 全部章节全文（按体裁排好阅读顺序）与三篇风格不同的示范文；模型动笔前必调一次，禁止跳读、摘抄、提炼
+- 新增创作模式（authoring）与润色模式（polishing）：润色标准固定为内源标准——文本自己最好的版本，不预设原文是 AI，不按外部清单修改
+- 常驻引导改为作家宪法：读全、成为作者、一口气写、听一遍、停；明确禁止评分、检测、画像、配额、表面指标、栏目标题、章号引用
+- `humanize_guard` 保持只守内容与文字完好性，不评分、不检测、不画像
+- references/00 重写为写作与润色总协议；references/11 改为内部思考单（不产出）；references/12、15 同步重写；新增 references/20 文笔与温度原理
+- 旧章节统一加 v0.3 阅读规则：只完整阅读内化，不照做清单
+
+### 变更
+
+- 新增 lib/study.mjs 理论阅读包组装器；README、docs/WHY、docs/ARCHITECTURE 按新姿态重写，新增 docs/THEORY.md 理论总纲
+- CLI 移除 validate-decision，新增 study 冒烟命令；测试套件更新
+
+## [0.2.0-rc.1]
+
+### 破坏性变更：删除后处理工序
+
+- 定位反转：从「写完后的去 AI 味工作流」改为「写作前的决策前置协议」。去 AI 味一旦变成独立后处理工序，任何清单、轮次、配额都会成为新的统一指纹
+- 退役十步状态机、三轮改写、三十项信号执行表；references/00 重写为写作决策协议，新增 references/19 后处理禁令与同类工具准入判据
+- 移除 `humanize_profile` 的分布画像（句长/段落分布、连词密度、§18 特征字计数）：这些指标会诱导「围绕表面指标修改」，破坏排版与读句；工具保留为只返回内容锚点的兼容替身
+- `humanize_guard` 移除文体扫描（破折号/半角引号/我是X的/心理代理/仿佛似乎/不是…而是）：命中列表会诱导机械替换；现在只做内容锚点保真 + 编码/引号成对 + 段落变化提示
+- 新增 `humanize_validate_decision`：校验写作决策单四栏（材料来源/注意力选择/判断代价/保护清单）真填满，并拒绝「每章一处/全文只准一次/句长占比目标」等配额化声明
+- `humanize_validate_artifact` 保留为 `humanize_validate_decision` 的兼容别名
+
+### 变更
+
+- index.mjs 常驻 system prompt 改为三不变量决策协议（写作前决策单 / 写作中回决策单 / 已有文本决策重建），不再注入十步与执行提示
+- README、docs/WHY.md、docs/ARCHITECTURE.md、lib/client.js 全部按新定位重写
+- references/09、references/18 增加退役告警；references/11 改为写作决策单；references/12 改为新执行提示；references/15 改为新完成判据
+- CLI 移除 profile 命令，新增 validate-decision 命令
+- 测试套件按新行为重写
+
 ## [0.1.0-rc.8]
 
 ### 新增
