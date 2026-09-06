@@ -1,7 +1,7 @@
 {
   "name": "dsh-humanizer",
-  "version": "0.3.0-rc.2",
-  "description": "中文写作与润色 bundle 插件：让模型动笔前完整读入全部理论、在思考中成为作者，然后一口气写。不评分、不检测、不画像、不配额。写作辅助，非 AI 检测器。",
+  "version": "0.4.0-alpha.2",
+  "description": "中文写作与润色工作台：本地证据记忆图谱、任务恢复、按需完整理论与内容忠实守卫。不评分、不检测、不设文风配额。",
   "type": "module",
   "main": "./index.mjs",
   "exports": {
@@ -21,7 +21,9 @@
     "docs/",
     "CHANGELOG.md",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
   ],
   "dsh": {
     "bundle": {
@@ -36,7 +38,9 @@
     },
     "compatibility": {
       "dsh": "0.1.2-alpha.4 || 0.1.2-alpha.5 || 0.1.2-rc.1",
-      "profiles": ["web"],
+      "profiles": [
+        "web"
+      ],
       "dshReleases": {
         "0.1.2-alpha.4": "compatible",
         "0.1.2-alpha.5": "compatible",
@@ -55,7 +59,8 @@
   },
   "peerDependencies": {
     "@deepseek-ai/dsh-tools": "^0.1.2-0 || ^0.1.3-0",
-    "@deepseek-ai/cordis": "^4.0.2"
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-home-paths": "^0.1.2-0 || ^0.1.3-0"
   },
   "packageManager": "pnpm@10.30.3",
   "engines": {
@@ -71,7 +76,6 @@
   "keywords": [
     "dsh",
     "dsh-plugin",
-
     "humanizer",
     "chinese-writing",
     "novel",
@@ -79,16 +83,3 @@
   ],
   "license": "MIT"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

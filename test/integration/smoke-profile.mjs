@@ -57,6 +57,12 @@ try {
   assert.match(html, /@deepseek-ai\/dsh-client-ui-renderer/)
   assert.doesNotMatch(startupOutput, /failed|cannot find|unknown dependency/i)
   console.log(runtime.trim())
+  if (process.argv[4] === '--preview') {
+    console.log(`Browser preview: ${address}`)
+    console.log('Press Enter to stop the preview and restore the profile.')
+    await new Promise(resolveInput => process.stdin.once('data', resolveInput))
+    process.stdin.pause()
+  }
 } finally {
   if (server && server.exitCode === null) { server.kill(); await exited }
   if (installed) dsh('plugin', '--profile', 'web', 'remove', 'dsh-humanizer')
