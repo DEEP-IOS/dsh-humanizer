@@ -1,7 +1,7 @@
 // dsh-humanizer —— Node half（Cordis entry · bundle plugin）
 //
 // 依赖说明：`@deepseek-ai/dsh-tools` 与 `@deepseek-ai/cordis` 声明为
-// peerDependencies（^0.1.0-rc.6 / ^4.0.1），由 dsh profile 闭包在挂载时满足；
+// peerDependencies（精确范围见 package.json），由 dsh profile 闭包在挂载时满足；
 // 插件不携带自己的副本，避免与宿主闭包版本错配。`@deepseek-ai/schemastery`
 // 是普通 dependency，用于 Config 校验。
 //
@@ -42,6 +42,8 @@ const 作家宪法 = `# 人味写作宪法（dsh-humanizer v0.3）
 调用 humanize_study(体裁, 模式) 一次，完整读完返回的全部章节与示范文。禁止跳读、禁止摘抄、禁止提炼。读完后在思考中成为作者，不产出任何工件，想清楚：
 这次要改变读者的什么；材料是谁知道的、通过什么途径、此刻为什么说；谁在看、为了什么看、有意不写什么；哪些判断确定、推测、保留，错了付出什么；这篇是谁在说、声音和在乎是什么；哪些人名、术语、口癖、意象、伏笔和有功能重复必须稳定；第一句和最后一句落在哪里。
 
+工具调用遵循宿主当前的工具模式；若启用 PTC，须通过 run_code 内的工具 SDK 调用。若宿主把长结果转存为文件或只展示预览，先按返回的路径与读取提示读完全文，预览不算完整阅读。
+
 ## 创作模式（authoring）
 一口气写完，写时忘记理论。写完把自己当第一次读到它的读者，听哪里断了、硬了、凉了、空了、说多了。只改这些真实的不适，然后停。
 
@@ -69,7 +71,7 @@ export function apply(ctx, config) {
   const { workflowEnabled, toolsEnabled, sectionOrder } = config
 
   // 常驻作家宪法（放进 system prompt，注意力最高处）
-  if (workflowEnabled) {
+  if (workflowEnabled && toolsEnabled) {
     ctx.effect(() => ctx.systemPrompt.section({
       name: 'dsh-humanizer:workflow',
       order: sectionOrder,
@@ -82,6 +84,7 @@ export function apply(ctx, config) {
   // 完整理论阅读包：一次返回全部章节全文。这是 v0.3 的核心工具。
   ctx.tools.register(defineTool({
     name: 'humanize_study',
+    isConcurrencySafe: () => true,
     description:
       '动笔前必调一次。按体裁和模式，一次返回 references/ 全部理论章节全文（按阅读顺序排好）' +
       '与三篇风格不同的示范文。模型必须完整读完，禁止跳读、摘抄、提炼；读完后在思考中成为作者，' +
@@ -108,6 +111,7 @@ export function apply(ctx, config) {
   // 内容忠实守卫：锚点 + 文字完好性 + 段落变化提示，不做文体扫描、不评分。
   ctx.tools.register(defineTool({
     name: 'humanize_guard',
+    isConcurrencySafe: () => true,
     description:
       '内容忠实守卫：比对原文与成品，检查内容锚点（数字/书名/术语/等级）是否保留，' +
       '检查成品是否有乱码/控制字符、全角引号是否成对，并报告段落数变化（信息，非失败条件）。' +
@@ -122,6 +126,7 @@ export function apply(ctx, config) {
 
   ctx.tools.register(defineTool({
     name: 'humanize_reference',
+    isConcurrencySafe: () => true,
     description:
       '读取插件自带的方法论文档（references/ 目录：00—20 章）。单独查阅某一章时使用。' +
       '注意：动笔前的完整阅读必须用 humanize_study 一次读完；本工具只用于写作后需要单独回查时。' +
@@ -136,6 +141,7 @@ export function apply(ctx, config) {
   // 旧工具兼容替身：分布画像已退役，只回内容锚点。
   ctx.tools.register(defineTool({
     name: 'humanize_profile',
+    isConcurrencySafe: () => true,
     description:
       '已退役的分布画像工具。v0.3 明确禁止一切画像与表面指标，本工具只保留内容锚点提取，' +
       '供旧调用兼容。需要核对内容请用 humanize_guard。',

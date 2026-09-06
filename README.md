@@ -212,15 +212,26 @@ v0.3 的全部工作，是一套五个字的流程：读全，成为作者，一
 
 ## 安装与使用
 
+需要 Node.js `^22.19.0 || >=24.0.0`。v0.3.0-rc.2 已在 DSH `0.1.2-alpha.4`、`0.1.2-alpha.5`、`0.1.2-rc.1` 的一次性 Web Profile 验证安装、启动、工具调用与卸载。完整记录和复现命令见 [兼容性验证](docs/COMPATIBILITY.md)。
+
+2026-09-06 核验时，npm 可安装最新版为 `0.1.2-rc.1`；GitHub 上的 `0.1.3-alpha.1` 尚无 npm 发行物，仅核对相关扩展接口，兼容状态保留 `unknown`。
+
 ```sh
-# npm 源（推荐）
+# Git 源：包含本次兼容性修复
+dsh plugin --profile web add "github:DEEP-IOS/dsh-humanizer"
+
+# npm 源：先核对 npm 已发布版本；GitHub 更新不会自动发布到 npm
 dsh plugin --profile web add dsh-humanizer
 
-# Git 源
-dsh plugin --profile web add "github:DEEP-IOS/dsh-humanizer"
+# 卸载
+dsh plugin --profile web remove dsh-humanizer
 ```
 
 装完重启 web。bundle 层栈在 boot 时合成，Node half 的改动需要重启才生效。
+
+插件只读取包内 `references/` 文档，不读取用户文件、不联网、不执行命令、不访问凭据。Cordis 和工具运行时由宿主提供；插件没有安装期构建脚本。设置面板遵循宿主浅色与深色主题。设置 `toolsEnabled: false` 会同时停用依赖工具的作家宪法，避免模型被要求调用已关闭的工具。
+
+理论全文在首次读取后按章节缓存，更新文档后须重启进程。PTC 模式通过 `run_code` 调用；宿主把长结果转存为文件时，模型须按返回提示继续读取全文，预览不算完整阅读。
 
 「用 humanizer 写这一章」进入创作模式，「用 humanizer 润色这段文本」进入润色模式。模型会先调 `humanize_study` 完整读一遍理论，然后开始写或改。
 

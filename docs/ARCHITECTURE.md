@@ -111,7 +111,7 @@ dsh-humanizer/
 
 ```yaml
 workflowEnabled: true   # 是否注入常驻作家宪法
-toolsEnabled: true      # 是否注册工具
+toolsEnabled: true      # 是否注册工具；false 时也停用依赖工具的作家宪法
 sectionOrder: 50        # system prompt 段顺序，数字越小越靠前
 ```
 
@@ -127,9 +127,9 @@ sectionOrder: 50        # system prompt 段顺序，数字越小越靠前
 
 ## 八、已知边界
 
-客户端面板依赖官方 `__ModuleLoader__` 与 slots 机制，还没有在真实 web UI 里验证过渲染。
+客户端面板依赖官方 `__ModuleLoader__` 与 slots 机制。manifest 的 `dsh.client.inject` 使用 renderer 和 settings-general 包名；运行时的 `inject` 使用 `slots` 服务名。已在 DSH 0.1.2-rc.1 的真实 Web UI 验证浅色与深色面板，版本矩阵见 [COMPATIBILITY.md](COMPATIBILITY.md)。
 
-完整阅读包约四万字符。如果未来宿主工具输出上限收紧，可以把阅读包分页，但分页只服务阅读，不产生任何执行步骤。
+完整阅读包保留所有 21 章。`reference` 和 `study` 共享只读正文缓存，每次返回独立的数组和对象；缓存有效期为当前模块生命周期，更新插件后重启。宿主 spill 策略可能转存长结果，常驻引导要求按宿主提示读完全文；PTC 模式使用宿主工具 SDK。只读工具声明可并行，注册与卸载仍交给 Cordis 管理。
 
 理论验证的强证据集中在长篇小说，跨体裁与跨语言的系统检验仍是开放工作。这个边界同时写在 docs/THEORY.md 里，避免工程文档和理论文档各说各话。
 

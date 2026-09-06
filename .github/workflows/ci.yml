@@ -15,5 +15,36 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --ignore-scripts
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm test
+
+  runtime:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        release:
+          - version: 0.1.2-alpha.4
+            before: '2026-09-02T00:00:00Z'
+          - version: 0.1.2-alpha.5
+            before: '2026-09-03T00:00:00Z'
+          - version: 0.1.2-rc.1
+            before: '2026-09-04T00:00:00Z'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install official DSH in an isolated host
+        run: npm install --prefix "$RUNNER_TEMP/humanizer-host" --before="${{ matrix.release.before }}" --ignore-scripts --no-audit --no-fund "@deepseek-ai/dsh@${{ matrix.release.version }}"
+      - name: Pack and verify disposable profile lifecycle
+        run: |
+          npm pack --ignore-scripts
+          package_file=$(node -p "require('./package.json').name + '-' + require('./package.json').version + '.tgz'")
+          node test/integration/smoke-profile.mjs "$RUNNER_TEMP/humanizer-host" "$PWD/$package_file"

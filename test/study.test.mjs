@@ -3,6 +3,20 @@ import assert from 'node:assert/strict'
 import { buildStudyPackage, renderStudyPackage, STUDY_VERSION } from '../lib/study.mjs'
 import { listReferences } from '../lib/reference.mjs'
 
+test('cached chapter text does not share mutable results between tool calls', () => {
+  const first = buildStudyPackage('fiction', 'authoring')
+  const text = first.chapters[0].text
+  first.chapters[0].text = 'changed'
+  first.examples[0].text = 'changed'
+  first.reading_order.reverse()
+  listReferences().splice(0)
+  const next = buildStudyPackage('fiction', 'authoring')
+  assert.equal(next.chapters[0].text, text)
+  assert.notEqual(next.examples[0].text, 'changed')
+  assert.equal(next.reading_order[0].key, '00')
+  assert.equal(next.chapters.length, 21)
+})
+
 test('STUDY_VERSION 为 semver', () => {
   assert.match(STUDY_VERSION, /^\d+\.\d+\.\d+$/)
 })
