@@ -1,6 +1,6 @@
 # DSH 兼容性与运行验证
 
-验证日期：2026-09-06。插件：`0.3.0-rc.2`。本地平台：Windows x64、Node.js 24.14.0、pnpm 10.30.3。
+验证日期：2026-09-06。插件：`0.4.0-alpha.1`。本地平台：Windows x64、Node.js 24.14.0、pnpm 10.30.3。
 
 ## 版本矩阵
 
@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | 0.1.2-alpha.4 | compatible | 通过，卸载后配置恢复 | 通过 | 已检查启动 HTML 中的模块图，未单独人工验收 |
 | 0.1.2-alpha.5 | compatible | 通过，卸载后配置恢复 | 通过 | 已检查启动 HTML 中的模块图，未单独人工验收 |
-| 0.1.2-rc.1 | compatible | 通过，卸载后配置恢复 | 通过 | 实际打开“设置 → 人味化”，浅色和深色均通过 |
+| 0.1.2-rc.1 | compatible | 通过，卸载后配置恢复 | 通过 | 实际打开新版面板，验证模板切换、编辑、复制反馈和浅色布局；深色基础样式沿用 rc.2，未重复人工验收 |
 | 0.1.3-alpha.1 | unknown | npm 未提供该版本，未运行 | 仅源码接口核对 | 未运行 |
 
 `compatible` 是作者对当前源码的声明，不代表 DSH STORE 已完成复检、独立安全审核或更新了 Catalog。`dshOperations` 的商城证据仍由商城独立处理，不伪造其运行状态。
@@ -21,10 +21,11 @@
 
 ## 验证覆盖
 
-- `pnpm test`：34 项通过，包含内容守卫、21 章完整阅读、参考查询、返回对象隔离和前端工厂/slot 生命周期。
-- 每个 DSH 版本运行 18 次正常原生工具调用，覆盖三体裁 × 两模式、内容守卫、参考读取和旧工具兼容；缺参调用按预期失败。
-- 每个版本通过两轮真实 Cordis 挂载、注销、重载，以及 `toolsEnabled` / `workflowEnabled` 配置开关检查；卸载后没有残留工具或提示词。
-- 每个版本通过官方 worker-thread PTC：`run_code` 内并行调用 `humanize_study` 和 `humanize_reference`，校验章节完整性与返回值。
+- `pnpm test`：50 项通过，包含内容守卫、21 章完整阅读、参考查询、返回对象隔离和前端工厂/slot 生命周期、请求编辑与复制回退；新增持久化、隔离、冲突、版本、遗忘、预算与关系扩展。
+- 每个 DSH 版本运行 25 次正常原生工具调用，覆盖三体裁 × 两模式、内容守卫、参考读取和旧工具兼容；缺参调用按预期失败。
+- 每个版本通过两轮真实 Cordis 挂载、注销、重载，以及 `toolsEnabled` / `workflowEnabled` / `memoryEnabled` 配置开关检查；卸载后没有残留工具或提示词。
+- 每个版本验证带真实 Session 的 prepare、memory 和 checkpoint，卸载重载后恢复已保存资料；资料位于动态 contexts，未混入 system sections，未绑定会话无资料。
+- 每个版本通过官方 worker-thread PTC：`run_code` 内并行调用 `humanize_study` 和 `humanize_reference`，校验章节完整性与返回值，再顺序执行 prepare、recall、checkpoint，检查图谱仍可恢复。
 - 安装实际 `npm pack` 产物，启动绑定回环地址的 Web 服务，完成启动 token 的正常 cookie 交换，校验 HTTP 200 与客户端模块图。
 - 经 `dsh plugin ... remove` 卸载后，组合配置与安装前逐字节相等，插件从 profile bundle 列表移除。
 - 本地核对三个隔离 npm 宿主内各 214 个 DSH 包均与对应完整版本一致，避免旧 CLI 搭配新依赖产生假阳性。自动冒烟继续检查本插件使用的关键宿主包版本一致性。
@@ -40,13 +41,13 @@ pnpm install --frozen-lockfile --ignore-scripts
 pnpm test
 npm pack --ignore-scripts
 npm install --prefix "<host>" --before=2026-09-04T00:00:00Z --ignore-scripts --no-audit --no-fund @deepseek-ai/dsh@0.1.2-rc.1
-node test/integration/smoke-profile.mjs "<host>" ./dsh-humanizer-0.3.0-rc.2.tgz
+node test/integration/smoke-profile.mjs "<host>" ./dsh-humanizer-0.4.0-alpha.1.tgz
 ```
 
 测试脚本在 `<host>` 下创建唯一 `humanizer-smoke-*` 目录，用独立 `DSH_HOME` 执行；结束时停止自己启动的 Web 进程并卸载插件，保留一次性目录便于复查。正常输出为：
 
 ```json
-{"dsh":"0.1.2-rc.1","calls":18,"lifecycle":"mount/dispose/remount passed","config":"passed","tools":"passed"}
+{"dsh":"0.1.2-rc.1","calls":25,"lifecycle":"mount/dispose/remount passed","config":"passed","tools":"passed"}
 {"ptc":"passed","worker":"official worker-thread","parallelTools":2}
 {"profile":"web","install":"passed","start":"passed","uninstall":"passed","baselineRestored":true,"home":"<host>/humanizer-smoke-..."}
 ```
