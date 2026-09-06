@@ -1,6 +1,8 @@
 # DSH 兼容性与运行验证
 
-验证日期：2026-09-06。插件：`0.4.0-alpha.1`。本地平台：Windows x64、Node.js 24.14.0、pnpm 10.30.3。
+验证日期：2026-09-06。插件：`0.4.0-alpha.2`。本地平台：Windows x64、Node.js 24.14.0、pnpm 10.30.3。
+
+本版沿用 alpha.1 的 JavaScript 与宿主声明；参考文本和随包文档有更新。浏览器人工交互结果来自 alpha.1 的同一客户端实现，alpha.2 复跑打包与自动宿主测试。
 
 ## 版本矩阵
 
@@ -41,12 +43,12 @@ pnpm install --frozen-lockfile --ignore-scripts
 pnpm test
 npm pack --ignore-scripts
 npm install --prefix "<host>" --before=2026-09-04T00:00:00Z --ignore-scripts --no-audit --no-fund @deepseek-ai/dsh@0.1.2-rc.1
-node test/integration/smoke-profile.mjs "<host>" ./dsh-humanizer-0.4.0-alpha.1.tgz
+node test/integration/smoke-profile.mjs "<host>" ./dsh-humanizer-0.4.0-alpha.2.tgz
 ```
 
 测试脚本在 `<host>` 下创建唯一 `humanizer-smoke-*` 目录，用独立 `DSH_HOME` 执行；结束时停止自己启动的 Web 进程并卸载插件，保留一次性目录便于复查。正常输出为：
 
-```json
+```jsonl
 {"dsh":"0.1.2-rc.1","calls":25,"lifecycle":"mount/dispose/remount passed","config":"passed","tools":"passed"}
 {"ptc":"passed","worker":"official worker-thread","parallelTools":2}
 {"profile":"web","install":"passed","start":"passed","uninstall":"passed","baselineRestored":true,"home":"<host>/humanizer-smoke-..."}

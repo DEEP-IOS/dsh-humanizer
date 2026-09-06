@@ -40,3 +40,29 @@
 [LongMemEval](https://arxiv.org/abs/2410.10813) 的跨会话、更新、时序和不确定性维度启发上述用例；本插件没有运行该基准，不能引用其分数为自身成绩。
 
 [Zep 的时间知识图谱论文](https://arxiv.org/abs/2501.13956) 提供可追溯关系记忆的设计参考。本版本采用简化的本地关系存储和显式故事时点，未实现该系统的语义检索或自动时间推理。
+
+## 一份最小评测记录
+
+以下是评测记录模板，不是已经完成的结果。每个条件分别填写，模型生成失败也保留。
+~~~json
+{
+  "case_id": "continuity-001",
+  "condition": "humanizer-next",
+  "plugin_version": "0.4.0-alpha.2",
+  "source_commit": "填写实际提交",
+  "dsh_version": "填写实际宿主",
+  "model_version": "填写完整模型标识",
+  "run": 1,
+  "material": "陈默的师父是林舟。",
+  "task": "保存设定、压缩或重启后续写师徒相见",
+  "expected_fact": "师父仍为林舟，未确认细节不得伪装成定稿",
+  "tool_trace_file": "填写脱敏轨迹路径",
+  "output_file": "填写成稿路径",
+  "input_tokens": null,
+  "output_tokens": null,
+  "duration_ms": null,
+  "failure": null
+}
+~~~
+
+未知 token 和时间保持 null，不能写成零。公开前清除凭据并确认素材可分享；盲评版不显示 condition、版本或工具轨迹。程序机制复现另见 [TESTING.md](TESTING.md)，不把虚构示例写成已发生实验。

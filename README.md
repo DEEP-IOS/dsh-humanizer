@@ -1,10 +1,35 @@
+<!-- generated-by: gsd-doc-writer -->
 # dsh-humanizer
 
 [![CI](https://github.com/DEEP-IOS/dsh-humanizer/actions/workflows/ci.yml/badge.svg)](https://github.com/DEEP-IOS/dsh-humanizer/actions)
 
 面向中文长篇小说和文章润色的 DeepSeek Harness 原生插件。保留作者声音、事实与进度，让写作知识在需要时出现。MIT 开源。
 
-**v0.4.0-alpha.1：本地记忆工作台。** 这是一版可测试的机制升级，尚无成稿盲评证明它优于所有其他插件。它不是 AI 检测器，不承诺检测分数或自动理解整部小说。
+**v0.4.0-alpha.2：本地记忆工作台与完整使用文档。** 这是一版可测试的机制升级，尚无成稿盲评证明它优于所有其他插件。它不是 AI 检测器，不承诺检测分数或自动理解整部小说。
+
+## 版本与安装通道
+
+| npm 通道 | 版本 | 适合谁 |
+|---|---|---|
+| `latest` | `0.3.0-rc.2` | 需要旧工作流的兼容修复，不包含持久记忆 |
+| `next` | `0.4.0-alpha.2` | 需要记忆图谱、任务恢复、按需理论与新版文档 |
+
+这里的版本是本次文档发布快照。`npm view dsh-humanizer dist-tags --json` 可查询实际标签。**只安装 `dsh-humanizer` 会得到 latest，不会自动选择记忆增强版。**
+
+```sh
+# 使用记忆增强版
+dsh plugin --profile web add dsh-humanizer@next
+# 固定这次文档修订版，便于复现
+dsh plugin --profile web add dsh-humanizer@0.4.0-alpha.2
+```
+
+安装后重启 `dsh web`，选择工作目录，在对话里说出作品名和任务。已有用户从 [升级与回退](docs/GETTING-STARTED.md#升级与回退) 开始；首次使用先看 [快速开始](docs/GETTING-STARTED.md)。
+
+## 本次文档修订说明
+
+alpha.1 引入记忆工作台；alpha.2 补齐使用、配置、工具参数、故障排查和发布文档，并同步修订内置参考章节中残留的 v0.3 全量阅读要求和检测信号式审核。数据库结构与工具 JavaScript 实现沿用 alpha.1，不需要迁移已有记忆；模型收到的参考文本有更新，因此仍需验证写作效果。
+
+[完整版本记录](CHANGELOG.md) · [文档目录](docs/README.md) · [典型使用场景](docs/USAGE.md) · [记忆工具参数](docs/TOOLS.md)
 
 ## 直接开始
 
@@ -43,7 +68,7 @@ dsh plugin --profile web add "github:DEEP-IOS/dsh-humanizer"
 
 # 本地打包后安装当前源码
 npm pack --ignore-scripts
-dsh plugin --profile web add ./dsh-humanizer-0.4.0-alpha.1.tgz
+dsh plugin --profile web add ./dsh-humanizer-0.4.0-alpha.2.tgz
 
 # 卸载
 dsh plugin --profile web remove dsh-humanizer
@@ -75,9 +100,9 @@ PTC 模式经 `run_code` 的工具 SDK 调用。会更改状态的工具按顺�
 
 数据库位于 `<DSH_HOME>/plugins/dsh-humanizer/memory.sqlite`，默认 DSH_HOME 为 `~/.dsh`。首次使用记忆工具才创建；插件不扫描稿件、不访问凭据、不自行联网，也不调用额外模型。工具结果会进入原有 dsh 会话与模型上下文，**本机存储不代表使用的模型服务看不到召回内容**。
 
-以宿主提供的真实工作目录隔离工作区，以作品名隔离作品；同一目录的新会话选择同名作品即可接续。移动目录后会视为另一工作区。没有工作目录时不会退回全局目录，可继续使用理论和内容守卫。
+以宿主提供的真实工作目录隔离工作区，以作品名隔离作品；在同一个 DSH_HOME 下，同一目录的新会话选择同名作品即可接续。移动目录后会视为另一工作区。没有工作目录时不会退回全局目录，可继续使用理论和内容守卫。
 
-自动召回预算为 9000 个 JSON 字符，返回省略条数；按人物名补查或 inspect 可取单条全文。每部作品最多 5000 个 key，每个 key 最多保留 8 个未决候选；history 返回最近 100 个版本。需要多条同类关系时用不同 key，更新同一关系则沿用原 key，不同时点/定稿阶段也使用不同 key。
+自动召回预算为 9000 个 JSON 字符，返回省略条数；按人物名补查或 inspect 可取单条全文。每部作品最多 5000 个 key，每个 key 当前最多保留 8 条候选或佐证；history 返回最近 100 个版本。需要多条同类关系时用不同 key，更新同一关系则沿用原 key，不同时点/定稿阶段也使用不同 key。
 
 按用户要求 forget 会删除对应 key 的所有历史正文和摘录，仅留下 key 与版本墓碑，以防旧调用复活内容。**它不清除其他关系、任务交接、宿主会话日志、备份或文件系统历史**；这些位置可能仍引用同一事实。卸载会保留数据库，以便重装继续。停止 dsh 后可备份插件数据目录；需要彻底清除插件记忆时删除该目录，宿主日志需另行管理。
 
@@ -92,9 +117,17 @@ pnpm test
 
 希望贡献真实失败案例：提供可公开的原文、期望保留的事实/声音、旧版与新版输出、模型和参数。使用 [盲评协议](docs/EVALUATION.md) 比较自然度、忠实度、声音与修改必要性，不使用 AI 检测分作质量目标。
 
+- [快速开始与升级](docs/GETTING-STARTED.md)
+- [续写、润色、修订和遗忘实例](docs/USAGE.md)
+- [配置与限制](docs/CONFIGURATION.md)
+- [工具参考](docs/TOOLS.md)
+- [故障排查](docs/TROUBLESHOOTING.md)
 - [记忆设计](docs/MEMORY-DESIGN.md)
 - [工程结构](docs/ARCHITECTURE.md)
 - [理论原文](references/00-工作流.md)
+- [开发与发布](docs/DEVELOPMENT.md)
+- [测试与证据](docs/TESTING.md)
+- [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md)
 - [v0.3 历史设计](docs/V0.3-DESIGN-HISTORY.md)
 
 ## License

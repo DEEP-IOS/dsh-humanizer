@@ -1,6 +1,6 @@
 {
   "name": "dsh-humanizer",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "description": "中文写作与润色工作台：本地证据记忆图谱、任务恢复、按需完整理论与内容忠实守卫。不评分、不检测、不设文风配额。",
   "type": "module",
   "main": "./index.mjs",
@@ -21,7 +21,9 @@
     "docs/",
     "CHANGELOG.md",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
   ],
   "dsh": {
     "bundle": {

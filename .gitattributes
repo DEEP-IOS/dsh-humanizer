@@ -1,0 +1,3 @@
+# Keep reference sections and their embedded prompt consistent on every host.
+references/*.md text eol=lf
+index.mjs text eol=lf
